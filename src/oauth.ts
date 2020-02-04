@@ -239,7 +239,52 @@ export class TnsOauthProviderMap {
 export const tnsOauthProviderMap = new TnsOauthProviderMap();
 
 function configureClientAuthAppDelegate(): void {
-  applicationModule.ios.delegate = TnsOAuthClientAppDelegate;
+  if (applicationModule.ios.delegate) {
+    if (applicationModule.ios.delegate.applicationOpenURLOptions) {
+      // call our function, then super
+      const orig = applicationModule.ios.delegate.applicationOpenURLOptions;
+      applicationModule.ios.delegate.applicationOpenURLOptions = (
+        application: UIApplication,
+        url: NSURL,
+        options: NSDictionary<string, any>): boolean => {
+        if (TnsOAuthClientAppDelegate.handleIncomingUrl(url)) {
+          return true;
+        }
+        return orig(application, url, options);
+      };
+    } else {
+      applicationModule.ios.delegate.applicationOpenURLOptions = (
+        application: UIApplication,
+        url: NSURL,
+        options: NSDictionary<string, any>): boolean => {
+        return TnsOAuthClientAppDelegate.handleIncomingUrl(url);
+      };
+    }
+    if (applicationModule.ios.delegate.applicationOpenURLSourceApplicationAnnotation) {
+      // call our function, then super
+      const orig = applicationModule.ios.delegate.applicationOpenURLSourceApplicationAnnotation;
+      applicationModule.ios.delegate.applicationOpenURLSourceApplicationAnnotation = (
+        application: UIApplication,
+        url: NSURL,
+        sourceApplication: string,
+        annotation: any): boolean => {
+        if (TnsOAuthClientAppDelegate.handleIncomingUrl(url)) {
+          return true;
+        }
+        return orig(application, url, sourceApplication, annotation);
+      };
+    } else {
+      applicationModule.ios.delegate.applicationOpenURLSourceApplicationAnnotation = (
+        application: UIApplication,
+        url: NSURL,
+        sourceApplication: string,
+        annotation: any): boolean => {
+        return TnsOAuthClientAppDelegate.handleIncomingUrl(url);
+      };
+    }
+  } else {
+      applicationModule.ios.delegate = TnsOAuthClientAppDelegate
+  }
 }
 
 export function configureTnsOAuth(providers: TnsOaProvider[]) {

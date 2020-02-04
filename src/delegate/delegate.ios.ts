@@ -17,7 +17,7 @@ export class TnsOAuthClientAppDelegate extends UIResponder
     url: NSURL,
     options: NSDictionary<string, any>
   ): boolean {
-    return this.handleIncomingUrl(url);
+    return TnsOAuthClientAppDelegate.handleIncomingUrl(url);
   }
 
   // iOS < 10
@@ -27,10 +27,10 @@ export class TnsOAuthClientAppDelegate extends UIResponder
     sourceApplication: string,
     annotation: any
   ): boolean {
-    return this.handleIncomingUrl(url);
+    return TnsOAuthClientAppDelegate.handleIncomingUrl(url);
   }
 
-  private handleIncomingUrl(url: NSURL): boolean {
+  public static handleIncomingUrl(url: NSURL): boolean {
     if (
       !TnsOAuthClientAppDelegate._client ||
       !TnsOAuthClientAppDelegate._urlScheme
